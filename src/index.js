@@ -1,7 +1,7 @@
 // A URL da sua API local.
 // Mantenha a porta 8000 se você a estiver rodando com o comando uvicorn padrão.
-const API_URL = "https://analisadorpolinico-api.onrender.com";
-// const API_URL = "http://127.0.0.1:8000"
+// const API_URL = "https://analisadorpolinico-api.onrender.com";
+const API_URL = "http://127.0.0.1:8000"
 
 // A lista de classes continua necessária para exibir o resultado da API.
 const CLASS_LABELS = [
@@ -61,9 +61,13 @@ document.getElementById("run-detection").addEventListener("click", async () => {
     const resultsDiv = document.getElementById("classification-results");
     resultsDiv.innerHTML = ""; // Limpa resultados antigos
 
-    for (const [classe, prob] of Object.entries(data)) {
+    // Acessa o array 'results' dentro do objeto de resposta
+    const results = data.results;
+
+    // Itera sobre o array de resultados para exibir cada classificação
+    for (const item of results) {
         const p = document.createElement("p");
-        p.textContent = `${classe}: ${(prob * 100).toFixed(2)}%`;
+        p.textContent = `${item.class}: ${(item.probability * 100).toFixed(2)}%`;
         resultsDiv.appendChild(p);
     }
 });
