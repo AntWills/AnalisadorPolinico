@@ -1,9 +1,9 @@
-// Este é o código JavaScript que lida com a lógica do modelo e da interface.
-// Ele assume que você já converteu seu modelo .pt para o formato TensorFlow.js
-// e que os arquivos (como model.json, etc.) estão em uma pasta no seu projeto.
-// Substitua o caminho './caminho_do_seu_modelo/model.json' pelo caminho real.
+// A URL da sua API local.
+// Mantenha a porta 8000 se você a estiver rodando com o comando uvicorn padrão.
+const API_URL = "https://analisadorpolinico-api.onrender.com";
+// const API_URL = "http://127.0.0.1:8000"
 
-const MODEL_PATH = './best_web_model/model.json'
+// A lista de classes continua necessária para exibir o resultado da API.
 const CLASS_LABELS = [
     'anadenanthera',
     'arecaceae',
@@ -28,93 +28,67 @@ const CLASS_LABELS = [
     'syagrus',
     'tridax',
     'urochloa'
-];// Substitua pelos rótulos reais
+];
 
-let model;
 let canvas = document.getElementById('output-canvas');
 let ctx = canvas.getContext('2d');
 const imageUpload = document.getElementById('image-upload');
-const runButton = document.getElementById('run-detection');
+// const runButton = document.getElementById('run-detection');
 const downloadButton = document.getElementById('download-image');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-// 1. Carrega o modelo de IA
+// 1. Não há mais necessidade de carregar o modelo no navegador
 async function loadModel() {
-    console.log('Carregando modelo...');
-    loadingSpinner.classList.remove('spinner-hidden');
-    model = await tf.loadGraphModel(MODEL_PATH);
-    console.log('Modelo carregado com sucesso!');
-    loadingSpinner.classList.add('spinner-hidden');
-    runButton.disabled = false;
+    await fetch(API_URL + "/health", { method: "GET" })
+    console.log('API pronta para receber requisições.');
 }
 
-// 2. Executa a detecção na imagem
-async function runDetection(image) {
-    console.log('Executando inferência...');
-    const startTime = performance.now();
+document.getElementById("run-detection").addEventListener("click", async () => {
+    const input = document.getElementById("image-upload");
+    if (input.files.length === 0) return alert("Selecione uma imagem!");
 
-    const tensor = tf.browser.fromPixels(image)
-        .resizeBilinear([416, 416])
-        .expandDims(0)
-        .toFloat();
+    const formData = new FormData();
+    formData.append("file", input.files[0]);
 
-    const predictions = await model.executeAsync(tensor);
+    const response = await fetch(API_URL + "/analyze", {
+        method: "POST",
+        body: formData,
+    });
 
-    // Libera a memória do tensor
-    tf.dispose(tensor);
+    const data = await response.json();
+    console.log(data); // {"classe":"abelha","conf":0.95}
 
-    const endTime = performance.now();
-    console.log(`Inferência concluída em ${endTime - startTime}ms`);
+    const resultsDiv = document.getElementById("classification-results");
+    resultsDiv.innerHTML = ""; // Limpa resultados antigos
 
-    // Processa os resultados para obter bounding boxes, scores e classes
-    const [boxes, scores, classes] = await Promise.all(predictions.map(t => t.array()));
+    for (const [classe, prob] of Object.entries(data)) {
+        const p = document.createElement("p");
+        p.textContent = `${classe}: ${(prob * 100).toFixed(2)}%`;
+        resultsDiv.appendChild(p);
+    }
+});
 
-    // Desenha a imagem original e as detecções no canvas
-    drawResults(image, boxes, scores, classes);
 
-    // Libera a memória dos tensores de previsão
-    tf.dispose(predictions);
 
-    downloadButton.style.display = 'block';
-}
-
-// 3. Desenha os resultados no canvas
-function drawResults(image, boxes, scores, classes) {
-    // Redimensiona o canvas para a imagem original
+// 3. Desenha os resultados da API no canvas
+function drawResultsFromAPI(image, result) {
     canvas.width = image.width;
     canvas.height = image.height;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    const threshold = 0.5; // Limite de confiança
+    const { predicted_class, confidence } = result;
+    const score = (confidence * 100).toFixed(2);
+    const text = `Classe: ${predicted_class} | Certeza: ${score}%`;
 
-    // Itera sobre as predições e desenha as caixas
-    for (let i = 0; i < scores.length; i++) {
-        if (scores[i] > threshold) {
-            const [y1, x1, y2, x2] = boxes[i];
-            const className = CLASS_LABELS[classes[i]];
-            const score = (scores[i] * 100).toFixed(2);
+    // Desenha um retângulo e o texto no canvas
+    ctx.fillStyle = 'white';
+    ctx.fillRect(10, 10, ctx.measureText(text).width + 20, 30);
+    ctx.fillStyle = 'black';
+    ctx.font = '16px Arial';
+    ctx.fillText(text, 20, 30);
 
-            const [left, top, width, height] = [
-                x1 * canvas.width,
-                y1 * canvas.height,
-                (x2 - x1) * canvas.width,
-                (y2 - y1) * canvas.height
-            ];
-
-            // Desenha a caixa
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(left, top, width, height);
-
-            // Desenha o texto
-            ctx.fillStyle = 'red';
-            ctx.font = '16px Arial';
-            const text = `${className}: ${score}%`;
-            ctx.fillText(text, left, top > 10 ? top - 5 : top + 15);
-        }
-    }
-    canvas.style.display = 'block'; // Mostra o canvas
+    canvas.style.display = 'block';
 }
 
 // 4. Lógica para download da imagem analisada
@@ -125,17 +99,24 @@ downloadButton.addEventListener('click', () => {
     link.click();
 });
 
-// 5. Lógica para o botão de análise
-runButton.addEventListener('click', async () => {
-    const file = imageUpload.files[0];
-    if (file && model) {
-        const image = new Image();
-        image.src = URL.createObjectURL(file);
-        image.onload = () => runDetection(image);
-    } else {
-        alert('Por favor, selecione uma imagem e aguarde o modelo carregar.');
-    }
-});
+// Função para chamar a API sem ninguém pedir
+async function autoFetchAPI() {
+    console.log("⏳ Chamando API automaticamente...");
 
-// 6. Inicia o carregamento do modelo assim que a página é carregada
+    try {
+        await fetch(API_URL + "/health", { method: "GET" })
+
+        const data = await response.json();
+        console.log("✅ Resposta automática da API:", data);
+
+    } catch (error) {
+        console.error("❌ Erro ao chamar API automaticamente:", error);
+    }
+}
+
+// Inicia chamadas automáticas a cada 30 segundos (30000 ms)
+setInterval(autoFetchAPI, 30000);
+
+
+// 6. Inicia o carregamento da API
 document.addEventListener('DOMContentLoaded', loadModel);
