@@ -3,7 +3,7 @@
 // e que os arquivos (como model.json, etc.) estão em uma pasta no seu projeto.
 // Substitua o caminho './caminho_do_seu_modelo/model.json' pelo caminho real.
 
-const MODEL_PATH = '../best_web_model/model.json'
+const MODEL_PATH = './best_web_model/model.json'
 const CLASS_LABELS = [
     'anadenanthera',
     'arecaceae',
