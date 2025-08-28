@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Análise de Imagens - Modelo de IA</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Análise Automatizada de Imagens</h1>
+    </header>
+
+    <main>
+      <section class="upload-section">
+        <p>
+          Selecione uma imagem para ser analisada pelo modelo de inteligência
+          artificial.
+        </p>
+        <input type="file" id="image-upload" accept="image/*" />
+        <button id="run-detection">Analisar Imagem</button>
+        <div id="loading-spinner" class="spinner-hidden"></div>
+      </section>
+
+      <section class="results-section">
+        <canvas id="output-canvas"></canvas>
+        <div class="buttons-container">
+          <button
+            id="download-image"
+            class="download-button"
+            style="display: none"
+          >
+            Baixar Análise
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2025 - Projeto de Análise de IA</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
