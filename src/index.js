@@ -3,8 +3,32 @@
 // e que os arquivos (como model.json, etc.) estão em uma pasta no seu projeto.
 // Substitua o caminho './caminho_do_seu_modelo/model.json' pelo caminho real.
 
-const MODEL_PATH = './caminho_do_seu_modelo/model.json';
-const CLASS_LABELS = ['classe1', 'classe2', 'classe3']; // Substitua pelos rótulos reais
+const MODEL_PATH = '../best_web_model/model.json'
+const CLASS_LABELS = [
+    'anadenanthera',
+    'arecaceae',
+    'arrabidaea',
+    'cecropia',
+    'chromolaena',
+    'combretum',
+    'croton',
+    'dipteryx',
+    'eucalipto',
+    'faramea',
+    'hyptis',
+    'mabea',
+    'matayba',
+    'mimosa',
+    'myrcia',
+    'protium',
+    'qualea',
+    'schinus',
+    'senegalia',
+    'serjania',
+    'syagrus',
+    'tridax',
+    'urochloa'
+];// Substitua pelos rótulos reais
 
 let model;
 let canvas = document.getElementById('output-canvas');
