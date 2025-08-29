@@ -152,13 +152,19 @@
         <input type="file" id="image-upload" accept="image/*" />
         <button id="run-detection">Analisar Imagem</button>
         <div id="loading-spinner" class="spinner-hidden"></div>
+        <!-- Aviso de processamento -->
+        <p
+          id="processing-warning"
+          style="color: #ff6600; display: none; margin-top: 10px"
+        >
+          ⚠️ Atenção: o processamento da imagem pode levar até 1 minuto.
+        </p>
       </section>
 
       <section class="results-section">
         <canvas id="output-canvas"></canvas>
         <div id="classification-results"></div>
-        <!-- Aqui aparecerão as classes -->
-        <div class="buttons-container">
+        <!-- <div class="buttons-container">
           <button
             id="download-image"
             class="download-button"
@@ -166,7 +172,14 @@
           >
             Baixar Análise
           </button>
-        </div>
+        </div> -->
+        <!-- Contato -->
+        <p style="margin-top: 1rem; font-size: 0.9rem; color: #555">
+          Em caso de dúvidas ou problemas, entre em contato:
+          <a href="mailto:antoniowillissilvasantos@gmail.com"
+            >antoniowillissilvasantos@gmail.com</a
+          >
+        </p>
       </section>
     </main>
 

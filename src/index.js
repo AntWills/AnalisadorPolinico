@@ -31,6 +31,7 @@ const CLASS_LABELS = [
 ];
 
 let canvas = document.getElementById('output-canvas');
+canvas.style.display = 'none';
 let ctx = canvas.getContext('2d');
 const imageUpload = document.getElementById('image-upload');
 // const runButton = document.getElementById('run-detection');
@@ -44,31 +45,49 @@ async function loadModel() {
 }
 
 document.getElementById("run-detection").addEventListener("click", async () => {
-    const input = document.getElementById("image-upload");
-    if (input.files.length === 0) return alert("Selecione uma imagem!");
+    const file = imageUpload.files[0];
+    if (file) {
+        // Mostra aviso de processamento
+        document.getElementById('processing-warning').style.display = 'block';
+        loadingSpinner.classList.remove('spinner-hidden');
 
-    const formData = new FormData();
-    formData.append("file", input.files[0]);
+        const image = new Image();
+        image.src = URL.createObjectURL(file);
+        image.onload = async () => {
+            const formData = new FormData();
+            formData.append('file', file);
 
-    const response = await fetch(API_URL + "/analyze", {
-        method: "POST",
-        body: formData,
-    });
+            try {
+                const response = await fetch(API_URL + '/analyze', {
+                    method: 'POST',
+                    body: formData,
+                });
 
-    const data = await response.json();
-    console.log(data); // {"classe":"abelha","conf":0.95}
+                const data = await response.json();
+                console.log(data);
 
-    const resultsDiv = document.getElementById("classification-results");
-    resultsDiv.innerHTML = ""; // Limpa resultados antigos
+                const resultsDiv = document.getElementById('classification-results');
+                resultsDiv.innerHTML = '';
+                data.results.forEach(item => {
+                    const p = document.createElement('p');
+                    p.textContent = `${item.class}: ${(item.probability * 100).toFixed(2)}%`;
+                    resultsDiv.appendChild(p);
+                });
 
-    // Acessa o array 'results' dentro do objeto de resposta
-    const results = data.results;
+                // Mostra canvas e botão de download
 
-    // Itera sobre o array de resultados para exibir cada classificação
-    for (const item of results) {
-        const p = document.createElement("p");
-        p.textContent = `${item.class}: ${(item.probability * 100).toFixed(2)}%`;
-        resultsDiv.appendChild(p);
+                // document.getElementById('download-image').style.display = 'inline-block';
+
+            } catch (err) {
+                alert('Erro ao processar a imagem. Verifique a API.');
+                console.error(err);
+            } finally {
+                loadingSpinner.classList.add('spinner-hidden');
+                document.getElementById('processing-warning').style.display = 'none';
+            }
+        };
+    } else {
+        alert('Por favor, selecione uma imagem.');
     }
 });
 
