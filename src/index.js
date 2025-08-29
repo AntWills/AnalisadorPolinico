@@ -127,7 +127,7 @@ async function autoFetchAPI() {
     console.log("⏳ Chamando API automaticamente...");
 
     try {
-        await fetch(API_URL + "/health", { method: "GET" })
+        const response = await fetch(API_URL + "/health", { method: "GET" })
 
         const data = await response.json();
         console.log("✅ Resposta automática da API:", data);
