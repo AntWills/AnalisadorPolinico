@@ -35,7 +35,7 @@ canvas.style.display = 'none';
 let ctx = canvas.getContext('2d');
 const imageUpload = document.getElementById('image-upload');
 // const runButton = document.getElementById('run-detection');
-const downloadButton = document.getElementById('download-image');
+// const downloadButton = document.getElementById('download-image');
 const loadingSpinner = document.getElementById('loading-spinner');
 
 // 1. Não há mais necessidade de carregar o modelo no navegador
@@ -115,12 +115,12 @@ function drawResultsFromAPI(image, result) {
 }
 
 // 4. Lógica para download da imagem analisada
-downloadButton.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = 'analise_ia.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-});
+// downloadButton.addEventListener('click', () => {
+//     const link = document.createElement('a');
+//     link.download = 'analise_ia.png';
+//     link.href = canvas.toDataURL('image/png');
+//     link.click();
+// });
 
 // Função para chamar a API sem ninguém pedir
 async function autoFetchAPI() {
