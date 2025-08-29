@@ -38,56 +38,79 @@ const imageUpload = document.getElementById('image-upload');
 // const downloadButton = document.getElementById('download-image');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-// 1. Não há mais necessidade de carregar o modelo no navegador
-async function loadModel() {
+async function initApi() {
     await fetch(API_URL + "/health", { method: "GET" })
     console.log('API pronta para receber requisições.');
 }
 
+// --- Funções Auxiliares ---
+
+// Função para exibir os resultados da classificação
+function displayResults(data) {
+    const resultsDiv = document.getElementById('classification-results');
+    resultsDiv.innerHTML = '';
+
+    if (data.results && data.results.length > 0) {
+        data.results.forEach(item => {
+            const p = document.createElement('p');
+            p.textContent = `${item.class}: ${(item.probability * 100).toFixed(2)}%`;
+            resultsDiv.appendChild(p);
+        });
+    } else {
+        resultsDiv.textContent = 'Nenhuma classificação encontrada.';
+    }
+}
+
+// Função para manipular o estado da UI
+function setProcessingState(isProcessing) {
+    const runButton = document.getElementById('run-detection');
+    const warning = document.getElementById('processing-warning');
+
+    if (isProcessing) {
+        warning.style.display = 'block';
+        loadingSpinner.classList.remove('spinner-hidden');
+        runButton.disabled = true; // Desabilita o botão para evitar cliques múltiplos
+    } else {
+        warning.style.display = 'none';
+        loadingSpinner.classList.add('spinner-hidden');
+        runButton.disabled = false; // Habilita o botão
+    }
+}
+
+// --- Lógica Principal ---
+
 document.getElementById("run-detection").addEventListener("click", async () => {
     const file = imageUpload.files[0];
-    if (file) {
-        // Mostra aviso de processamento
-        document.getElementById('processing-warning').style.display = 'block';
-        loadingSpinner.classList.remove('spinner-hidden');
+    if (!file) {
+        return alert("Por favor, selecione uma imagem.");
+    }
 
-        const image = new Image();
-        image.src = URL.createObjectURL(file);
-        image.onload = async () => {
-            const formData = new FormData();
-            formData.append('file', file);
+    setProcessingState(true);
 
-            try {
-                const response = await fetch(API_URL + '/analyze', {
-                    method: 'POST',
-                    body: formData,
-                });
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
 
-                const data = await response.json();
-                console.log(data);
+        console.log("Chamando API...");
+        const response = await fetch(API_URL + '/analyze', {
+            method: 'POST',
+            body: formData,
+        });
 
-                const resultsDiv = document.getElementById('classification-results');
-                resultsDiv.innerHTML = '';
-                data.results.forEach(item => {
-                    const p = document.createElement('p');
-                    p.textContent = `${item.class}: ${(item.probability * 100).toFixed(2)}%`;
-                    resultsDiv.appendChild(p);
-                });
+        if (!response.ok) {
+            throw new Error(`Erro na API: ${response.statusText}`);
+        }
 
-                // Mostra canvas e botão de download
+        const data = await response.json();
+        console.log("Resposta da API:", data);
 
-                // document.getElementById('download-image').style.display = 'inline-block';
+        displayResults(data);
 
-            } catch (err) {
-                alert('Erro ao processar a imagem. Verifique a API.');
-                console.error(err);
-            } finally {
-                loadingSpinner.classList.add('spinner-hidden');
-                document.getElementById('processing-warning').style.display = 'none';
-            }
-        };
-    } else {
-        alert('Por favor, selecione uma imagem.');
+    } catch (err) {
+        console.error("Erro:", err);
+        alert('Erro ao processar a imagem. Verifique a API.');
+    } finally {
+        setProcessingState(false);
     }
 });
 
@@ -142,4 +165,4 @@ setInterval(autoFetchAPI, 30000);
 
 
 // 6. Inicia o carregamento da API
-document.addEventListener('DOMContentLoaded', loadModel);
+document.addEventListener('DOMContentLoaded', initApi);
