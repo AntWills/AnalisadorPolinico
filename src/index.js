@@ -1,6 +1,6 @@
 // A URL da sua API local.
 // Mantenha a porta 8000 se você a estiver rodando com o comando uvicorn padrão.
-const API_URL = "https://analisadorpolinico-api.onrender.com";
+const API_URL = "https://analisadorpolinico-api.vercel.app";
 // const API_URL = "http://127.0.0.1:8000"
 
 // A lista de classes continua necessária para exibir o resultado da API.
