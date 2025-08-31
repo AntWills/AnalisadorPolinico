@@ -34,8 +34,6 @@ let canvas = document.getElementById('output-canvas');
 canvas.style.display = 'none';
 let ctx = canvas.getContext('2d');
 const imageUpload = document.getElementById('image-upload');
-// const runButton = document.getElementById('run-detection');
-// const downloadButton = document.getElementById('download-image');
 const loadingSpinner = document.getElementById('loading-spinner');
 
 async function initApi() {
@@ -136,32 +134,6 @@ function drawResultsFromAPI(image, result) {
 
     canvas.style.display = 'block';
 }
-
-// 4. Lógica para download da imagem analisada
-// downloadButton.addEventListener('click', () => {
-//     const link = document.createElement('a');
-//     link.download = 'analise_ia.png';
-//     link.href = canvas.toDataURL('image/png');
-//     link.click();
-// });
-
-// Função para chamar a API sem ninguém pedir
-async function autoFetchAPI() {
-    console.log("⏳ Chamando API automaticamente...");
-
-    try {
-        const response = await fetch(API_URL + "/health", { method: "GET" })
-
-        const data = await response.json();
-        console.log("✅ Resposta automática da API:", data);
-
-    } catch (error) {
-        console.error("❌ Erro ao chamar API automaticamente:", error);
-    }
-}
-
-// Inicia chamadas automáticas a cada 30 segundos (30000 ms)
-setInterval(autoFetchAPI, 30000);
 
 
 // 6. Inicia o carregamento da API
