@@ -24,7 +24,7 @@ Como este é um projeto de frontend simples, não há necessidade de um servidor
 
 1.  Clone este repositório:
     ```bash
-    git clone https://github.com/seu-usuario/seu-repositorio.git
+    git clone https://github.com/AntWills/AnalisadorPolinico.git
     ```
 2.  Abra o arquivo `index.html` em seu navegador de preferência (Google Chrome, Firefox, etc.).
 
